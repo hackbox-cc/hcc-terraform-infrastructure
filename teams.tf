@@ -1,4 +1,3 @@
-
 resource "github_team" "all" {
   for_each = {
     for team in csvdecode(file("${path.module}/data/teams.csv")) :
