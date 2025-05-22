@@ -5,8 +5,28 @@ resource "github_repository" "hcc-infrastructure" {
   description = "Terraform things"
 }
 
+resource "github_repository" "hcc-ansible" {
+  name = "hcc-ansible"
+  description = "Ansible things"
+}
+
+
 # Add memberships for infrastructure repository
 resource "github_team_repository" "hcc-infrastructure" {
+  for_each = {
+    for team in local.repo_teams_files["hcc-infrastructure"] :
+    team.team_name => {
+      team_id    = github_team.all[team.team_name].id
+      permission = team.permission
+    } if lookup(github_team.all, team.team_name, false) != false
+  }
+
+  team_id    = each.value.team_id
+  repository = github_repository.hcc-infrastructure.id
+  permission = each.value.permission
+}
+
+resource "github_team_repository" "hcc-ansible" {
   for_each = {
     for team in local.repo_teams_files["hcc-infrastructure"] :
     team.team_name => {
